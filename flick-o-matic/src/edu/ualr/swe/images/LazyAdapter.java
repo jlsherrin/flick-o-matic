@@ -1,6 +1,5 @@
 package edu.ualr.swe.images;
 
-import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import com.gmail.yuyang226.flickr.photos.Photo;
 import com.gmail.yuyang226.flickr.photos.PhotoList;
 
+import edu.ualr.swe.R;
 import edu.ualr.swe.images.ImageUtils.DownloadedDrawable;
 import edu.ualr.swe.tasks.ImageDownloadTask;
 
