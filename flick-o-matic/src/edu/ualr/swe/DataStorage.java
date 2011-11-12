@@ -19,7 +19,7 @@ public class DataStorage extends Activity{
 			prefEditor.putString("oAuthToken", "");
 			prefEditor.putString("oAuthSecret","");
 			prefEditor.putBoolean("settings", true);
-			prefEditor.putLong("timestamp",System.currentTimeMillis());
+			prefEditor.putLong("timestamp",System.currentTimeMillis()/1000);
 		}
 	}
 	
@@ -27,7 +27,7 @@ public class DataStorage extends Activity{
 	public void saveAuth(String[] newAuth) {
 		prefEditor.putString("oAuthToken", newAuth[0]);
 		prefEditor.putString("oAuthSecret", newAuth[1]);
-		prefEditor.putLong("timestamp",System.currentTimeMillis());
+		prefEditor.putLong("timestamp",System.currentTimeMillis()/1000);
 	}
 	public void delAuth() {
 		prefEditor.putString("oAuthToken", "");
@@ -39,16 +39,16 @@ public class DataStorage extends Activity{
 		String[] uploadData = new String[3];
 		uploadData[0] = preferences.getString("oAuthToken", "");
 		uploadData[1] = preferences.getString("oAuthSecret", "");
-		uploadData[2] = ""+preferences.getLong("timestamp", System.currentTimeMillis());
+		uploadData[2] = ""+preferences.getLong("timestamp", System.currentTimeMillis()/1000);
 		return uploadData;
 	}
 	public void updateTimestamp(){
-		prefEditor.putLong("timestamp",System.currentTimeMillis());
+		prefEditor.putLong("timestamp",System.currentTimeMillis()/1000);
 	}
 	
 	//for display
 	public long getTimestamp(){
-		return preferences.getLong("timestamp", System.currentTimeMillis());
+		return preferences.getLong("timestamp", System.currentTimeMillis()/1000);
 	}
 	
 	//for settings section
