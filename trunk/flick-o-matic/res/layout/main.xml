@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
 
-    <com.loopj.android.image.SmartImageView
-    android:id="@+id/my_image" />
-	
-</LinearLayout>
+<FrameLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" 
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+    <GridView  
+        android:id="@+id/sdcard"
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent"
+        android:verticalSpacing="10dp"
+        android:horizontalSpacing="10dp" 
+        android:stretchMode="columnWidth"
+        android:gravity="center" />
+        
+</FrameLayout>  
