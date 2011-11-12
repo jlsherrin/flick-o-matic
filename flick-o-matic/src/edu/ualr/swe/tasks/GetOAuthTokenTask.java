@@ -16,9 +16,9 @@ import edu.ualr.swe.*;
 public class GetOAuthTokenTask extends AsyncTask<String, Integer, OAuth> {
 	private static final Logger logger = LoggerFactory.getLogger(GetOAuthTokenTask.class);
 
-	private authActivity activity;
+	private AuthActivity activity;
 
-	public GetOAuthTokenTask(authActivity context) {
+	public GetOAuthTokenTask(AuthActivity context) {
 		this.activity = context;
 	}
 
