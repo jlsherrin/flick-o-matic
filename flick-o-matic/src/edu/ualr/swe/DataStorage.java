@@ -86,6 +86,9 @@ public class DataStorage extends Activity{
 		saveFile(2);
 		return uploadData;*/
 	}
+	public void updateTimestamp(){
+		prefEditor.putLong("timestamp",System.currentTimeMillis());
+	}
 	
 	//for settings section
 	public boolean getUpload(){
