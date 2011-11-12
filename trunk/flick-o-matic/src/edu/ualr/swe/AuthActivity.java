@@ -29,9 +29,9 @@ import edu.ualr.swe.tasks.GetOAuthTokenTask;
 import edu.ualr.swe.tasks.LoadPhotostreamTask;
 import edu.ualr.swe.tasks.LoadUserTask;
 
+import android.R;
 
-
-public class authActivity extends Activity {
+public class AuthActivity extends Activity {
 	
 	private ListView listView;
 	private TextView textUserTitle;
@@ -47,7 +47,7 @@ public class authActivity extends Activity {
 	public static final String KEY_USER_NAME = "flick-o-matic-userName"; 
 	public static final String KEY_USER_ID = "flick-o-matic-userId"; 
 	
-	private static final Logger logger = LoggerFactory.getLogger(authActivity.class);
+	private static final Logger logger = LoggerFactory.getLogger(AuthActivity.class);
 	
 	
 	

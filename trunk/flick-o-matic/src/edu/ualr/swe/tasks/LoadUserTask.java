@@ -16,7 +16,7 @@ import com.gmail.yuyang226.flickr.oauth.OAuth;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 import com.gmail.yuyang226.flickr.people.User;
 
-import edu.ualr.swe.authActivity;
+import edu.ualr.swe.AuthActivity;
 import edu.ualr.swe.FlickrHelper;
 
 //import com.gmail.yuyang226.flickrj.sample.android.images.ImageUtils.DownloadedDrawable;
@@ -25,11 +25,11 @@ public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 	/**
 	 * 
 	 */
-	private final authActivity flickrjAndroidSampleActivity;
+	private final AuthActivity flickrjAndroidSampleActivity;
 	private ImageView userIconImage;
 	private final Logger logger = LoggerFactory.getLogger(LoadUserTask.class);
 	
-	public LoadUserTask(authActivity flickrjAndroidSampleActivity, 
+	public LoadUserTask(AuthActivity flickrjAndroidSampleActivity, 
 			ImageView userIconImage) {
 		this.flickrjAndroidSampleActivity = flickrjAndroidSampleActivity;
 		this.userIconImage = userIconImage;
