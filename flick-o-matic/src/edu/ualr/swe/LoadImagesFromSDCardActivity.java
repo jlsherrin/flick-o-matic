@@ -21,6 +21,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.view.Display;
 import android.view.View;
@@ -32,6 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 /**
  * Loads images from SD card. 
@@ -164,38 +166,49 @@ OnItemClickListener {
             Bitmap bitmap = null;
             Bitmap newBitmap = null;
             Uri uri = null;            
-
-            // Set up an array of the Thumbnail Image ID column we want
-            String[] projection = {MediaStore.Images.Thumbnails._ID};
+            
+            //MediaStore.Images.Media.
+         
+            // Set up an array of the Image ID column we want
+            String[] projection = {MediaStore.Images.Media._ID};
             // Create the cursor pointing to the SDCard
-            Cursor cursor = managedQuery( MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
+            Cursor cursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     projection, // Which columns to return
                     null,       // Return all rows
                     null,       
                     null); 
-            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID);
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
             int size = cursor.getCount();
             // If size is 0, there are no images on the SD Card.
             if (size == 0) {
                 //No Images available, post some message to the user
             }
             int imageID = 0;
+            
             for (int i = 0; i < size; i++) {
                 cursor.moveToPosition(i);
+                
                 imageID = cursor.getInt(columnIndex);
-                uri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, "" + imageID);
-                try {
-                    bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-                    if (bitmap != null) {
-                        newBitmap = Bitmap.createScaledBitmap(bitmap, 70, 70, true);
-                        bitmap.recycle();
-                        if (newBitmap != null) {
-                            publishProgress(new LoadedImage(newBitmap));
-                        }
-                    }
+                
+               String date = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
+               uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imageID);
+               //MediaStore.Images.Media.query(getContentResolver(), uri, projection).;
+               if (Integer.parseInt(date) > 1321100790)
+                	{
+                		
+                		try {
+                			bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+                			if (bitmap != null) {
+                				newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+                				bitmap.recycle();
+                				if (newBitmap != null) {
+                					publishProgress(new LoadedImage(newBitmap));
+                				}
+                			}
                 } catch (IOException e) {
                     //Error fetching image, try to recover
                 }
+                	}
             }
             cursor.close();
             return null;
@@ -259,7 +272,7 @@ OnItemClickListener {
                 imageView = (ImageView) convertView; 
             } 
             imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            imageView.setPadding(8, 8, 8, 8);
+            imageView.setPadding(1, 1, 1, 1);
             imageView.setImageBitmap(photos.get(position).getBitmap());
             return imageView; 
         } 
