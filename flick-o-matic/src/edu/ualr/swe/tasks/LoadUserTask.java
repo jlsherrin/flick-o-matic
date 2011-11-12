@@ -16,7 +16,6 @@ import com.gmail.yuyang226.flickr.oauth.OAuth;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 import com.gmail.yuyang226.flickr.people.User;
 
-import edu.ualr.swe.PhotosActivity;
 import edu.ualr.swe.authActivity;
 import edu.ualr.swe.FlickrHelper;
 
