@@ -18,8 +18,7 @@ import com.gmail.yuyang226.flickr.people.User;
 
 import edu.ualr.swe.AuthActivity;
 import edu.ualr.swe.FlickrHelper;
-
-//import com.gmail.yuyang226.flickrj.sample.android.images.ImageUtils.DownloadedDrawable;
+import edu.ualr.swe.images.ImageUtils.DownloadedDrawable;
 
 public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 	/**
@@ -89,10 +88,10 @@ public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 		if (user.getBuddyIconUrl() != null) {
 			String buddyIconUrl = user.getBuddyIconUrl();
 	        if (userIconImage != null) {
-	        	//ImageDownloadTask task = new ImageDownloadTask(userIconImage);
-	            //Drawable drawable = new DownloadedDrawable(task);
-	            //userIconImage.setImageDrawable(drawable);
-	            //task.execute(buddyIconUrl);
+	        	ImageDownloadTask task = new ImageDownloadTask(userIconImage);
+	            Drawable drawable = new DownloadedDrawable(task);
+	            userIconImage.setImageDrawable(drawable);
+	            task.execute(buddyIconUrl);
 	        }
 		}
 	}
