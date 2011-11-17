@@ -96,7 +96,7 @@ OnItemClickListener {
         sdcardImages = (GridView) findViewById(R.id.sdcard);
         sdcardImages.setNumColumns(display.getWidth()/95);
         sdcardImages.setClipToPadding(false);
-        sdcardImages.setOnItemClickListener(Main.this);
+        sdcardImages.setOnItemClickListener(this);
         imageAdapter = new ImageAdapter(getApplicationContext()); 
         sdcardImages.setAdapter(imageAdapter);
     }
