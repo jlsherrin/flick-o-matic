@@ -44,7 +44,7 @@ import android.widget.Toast;
 public class LoadImagesFromSDCardActivity extends Activity implements
 OnItemClickListener {
     
-    /**
+  /**
      * Grid view holding the images.
      */
     private GridView sdcardImages;
@@ -96,7 +96,7 @@ OnItemClickListener {
         sdcardImages = (GridView) findViewById(R.id.sdcard);
         sdcardImages.setNumColumns(display.getWidth()/95);
         sdcardImages.setClipToPadding(false);
-        sdcardImages.setOnItemClickListener(LoadImagesFromSDCardActivity.this);
+        sdcardImages.setOnItemClickListener(Main.this);
         imageAdapter = new ImageAdapter(getApplicationContext()); 
         sdcardImages.setAdapter(imageAdapter);
     }
@@ -170,7 +170,10 @@ OnItemClickListener {
             //MediaStore.Images.Media.
          
             // Set up an array of the Image ID column we want
-            String[] projection = {MediaStore.Images.Media._ID};
+            String[] projection = {
+            		MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.DATE_TAKEN};
             // Create the cursor pointing to the SDCard
             Cursor cursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     projection, // Which columns to return
@@ -189,11 +192,11 @@ OnItemClickListener {
                 cursor.moveToPosition(i);
                 
                 imageID = cursor.getInt(columnIndex);
-                
-               String date = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
+               Long timestamp = 1321403384000l;
+               Long date = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
                uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imageID);
                //MediaStore.Images.Media.query(getContentResolver(), uri, projection).;
-               if (Integer.parseInt(date) > 1321100790)
+               if (date > timestamp)
                 	{
                 		
                 		try {
