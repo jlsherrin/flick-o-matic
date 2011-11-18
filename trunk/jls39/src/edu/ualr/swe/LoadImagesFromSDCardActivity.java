@@ -10,9 +10,21 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,19 +75,16 @@ import android.widget.Toast;
 public class LoadImagesFromSDCardActivity extends Activity implements
 OnItemClickListener {
     
-  /**
-     * Grid view holding the images.
-     */
-    private GridView sdcardImages;
-    /**
-     * Image adapter for the grid view.
-     */
+	private GridView sdcardImages;
     private ImageAdapter imageAdapter;
-    /**
-     * Display used for getting the width of the screen. 
-     */
     private Display display;
-    
+    ImageView img;
+    Bitmap image;
+    ArrayList urlsArray = new ArrayList();
+    String apiKey = "8d7dec18e1e325fa0df671b184ff91db";
+    String apiSecret = "1cf670e8f539eda9";
+    String sha1Key = "";
+	
     public static final String CALLBACK_SCHEME = "flick-o-matic-oauth";
 	public static final String PREFS_NAME = "flick-o-matic-pref"; 
 	public static final String KEY_OAUTH_TOKEN = "flick-o-matic-oauthToken"; 
@@ -111,6 +120,7 @@ OnItemClickListener {
 		this.userIcon = (ImageView) this.findViewById(R.id.userImage);
 		this.listView = (ListView) this.findViewById(R.id.imageList);
 		this.refreshButton = (ImageButton) this.findViewById(R.id.btnRefreshUserProfile); 
+		TextView dbg = (TextView)findViewById(R.id.textView1);
 		
         OAuth oauth = getOAuthToken();
 		if (oauth == null || oauth.getUser() == null) {
@@ -122,9 +132,31 @@ OnItemClickListener {
 
         display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
+        
         setupViews();
         setProgressBarIndeterminateVisibility(true); 
+        
+        //TODO: make user id dynamic
+        final HttpGet get = new HttpGet("http://api.flickr.com/services/rest/?&method=flickr.people.getPublicPhotos&api_key=8d7dec18e1e325fa0df671b184ff91db&user_id=69944181@N02&format=json&nojsoncallback=1");
+        HttpClient httpclient = new DefaultHttpClient();
+	    ResponseHandler<String> responseHandler = new BasicResponseHandler();
+	    String jsonResponse="";
+	    
+		try {		
+			jsonResponse = httpclient.execute(get, responseHandler);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			jsonResponse = "IOException";
+			e.printStackTrace();
+		}
+		
+		urlsArray = buildUrlsArray(jsonResponse);
+		 //dbg.setText(jsonResponse);
         loadImages();
+        
+     
     }
 
     /**
@@ -267,6 +299,31 @@ OnItemClickListener {
                 	}
             }
             cursor.close();
+            
+            
+            /*load flickr images*/
+            InputStream is = null;
+            for (Object url : urlsArray)  {
+	            try {
+	            	is = (InputStream) new URL((String) url).getContent();
+	            } catch (MalformedURLException e) {
+	            	// TODO Auto-generated catch block
+	            	e.printStackTrace();
+	            } catch (IOException e) {
+	            	// TODO Auto-generated catch block
+	            	e.printStackTrace();
+	            }
+           
+	            bitmap = BitmapFactory.decodeStream(is);
+	            if (bitmap != null) {
+	            	newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+	            	bitmap.recycle();
+	            	if (newBitmap != null) {
+	            		publishProgress(new LoadedImage(newBitmap));
+	            	}
+	            }
+            }
+            
             return null;
         }
         /**
@@ -511,5 +568,58 @@ OnItemClickListener {
 			editor.putString(KEY_USER_ID, userId);
 			editor.commit();
 	    }
+	  
+	  private ArrayList<?> buildUrlsArray(String jsonResponse) {	   
+		   ArrayList<String> farmsArray = new ArrayList<String>();
+	       ArrayList<String> serversArray = new ArrayList<String>();
+	       ArrayList<String> idsArray = new ArrayList<String>();
+	       ArrayList<String> secretsArray = new ArrayList<String>();
+	       ArrayList localUrlsArray =new ArrayList();
+		   JSONObject jObject = null;
+			
+		   try {
+				jObject = new JSONObject(jsonResponse);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			JSONObject photosObject = null;
+			try {
+				photosObject = jObject.getJSONObject("photos");
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}	
+			
+			JSONArray photoArray = null;
+			try {
+				photoArray = photosObject.getJSONArray("photo");
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			int interestsCount = photoArray.length();
+		
+			//String interestsBody = "";
+			for (int i=0; i<interestsCount; i++)
+			{
+				try {
+					farmsArray.add(photoArray.getJSONObject(i).getString("farm").toString());
+					serversArray.add(photoArray.getJSONObject(i).getString("server").toString());
+					idsArray.add(photoArray.getJSONObject(i).getString("id").toString());
+					secretsArray.add(photoArray.getJSONObject(i).getString("secret").toString());
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		
+			for (int i = 0; i < farmsArray.size(); i++) {
+				localUrlsArray.add("http://farm"+ farmsArray.get(i) +".static.flickr.com/" + serversArray.get(i) + "/"+ idsArray.get(i) +"_"+ secretsArray.get(i) +"_t.jpg");
+			}
+			return localUrlsArray;
+	   }
 
 }
