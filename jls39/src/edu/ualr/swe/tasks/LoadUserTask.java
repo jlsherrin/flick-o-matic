@@ -18,22 +18,24 @@ import com.gmail.yuyang226.flickr.people.User;
 
 import edu.ualr.swe.AuthActivity;
 import edu.ualr.swe.FlickrHelper;
+import edu.ualr.swe.LoadImagesFromSDCardActivity;
 import edu.ualr.swe.images.ImageUtils.DownloadedDrawable;
 
 public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 	/**
 	 * 
 	 */
-	private final AuthActivity flickrjAndroidSampleActivity;
+	private final LoadImagesFromSDCardActivity Activity;
 	private ImageView userIconImage;
 	private final Logger logger = LoggerFactory.getLogger(LoadUserTask.class);
 	
-	public LoadUserTask(AuthActivity flickrjAndroidSampleActivity, 
+	public LoadUserTask(LoadImagesFromSDCardActivity loadImagesFromSDCardActivity, 
 			ImageView userIconImage) {
-		this.flickrjAndroidSampleActivity = flickrjAndroidSampleActivity;
+		this.Activity = loadImagesFromSDCardActivity;
 		this.userIconImage = userIconImage;
 	}
-	
+
+
 	/**
 	 * The progress dialog before going to the browser.
 	 */
@@ -42,7 +44,7 @@ public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		mProgressDialog = ProgressDialog.show(flickrjAndroidSampleActivity,
+		mProgressDialog = ProgressDialog.show(Activity,
 				"", "Loading user information..."); //$NON-NLS-1$ //$NON-NLS-2$
 		mProgressDialog.setCanceledOnTouchOutside(true);
 		mProgressDialog.setCancelable(true);
@@ -67,7 +69,7 @@ public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 					.getFlickrAuthed(token.getOauthToken(), token.getOauthTokenSecret());
 			return f.getPeopleInterface().getInfo(user.getId());
 		} catch (Exception e) {
-			Toast.makeText(flickrjAndroidSampleActivity, e.toString(), Toast.LENGTH_LONG).show();
+			Toast.makeText(Activity, e.toString(), Toast.LENGTH_LONG).show();
 			logger.error(e.getLocalizedMessage(), e);
 		}
 		return null;
@@ -84,7 +86,7 @@ public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 		if (user == null) {
 			return;
 		}
-		flickrjAndroidSampleActivity.setUser(user);
+		Activity.setUser(user);
 		if (user.getBuddyIconUrl() != null) {
 			String buddyIconUrl = user.getBuddyIconUrl();
 	        if (userIconImage != null) {
