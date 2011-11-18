@@ -1,0 +1,308 @@
+package edu.ualr.swe;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+
+import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Looper;
+import android.provider.MediaStore;
+import android.view.Display;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
+
+public class Main extends Activity implements OnItemClickListener {
+    
+      private GridView sdcardImages;
+    private ImageAdapter imageAdapter;
+    private Display display;
+    ImageView img;
+    Drawable image;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);        
+        // Request progress bar
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setContentView(R.layout.main);
+
+        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        img = (ImageView)findViewById(R.id.imageView2);
+        setupViews();
+        setProgressBarIndeterminateVisibility(true); 
+        loadImages();
+        
+        
+        /********Loading from flickr*************/
+   
+       
+        
+        
+        
+        
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        final GridView grid = sdcardImages;
+        final int count = grid.getChildCount();
+        ImageView v = null;
+        for (int i = 0; i < count; i++) {
+            v = (ImageView) grid.getChildAt(i);
+            ((BitmapDrawable) v.getDrawable()).setCallback(null);
+        }
+    }
+
+    private void setupViews() {
+        sdcardImages = (GridView) findViewById(R.id.sdcard);
+        sdcardImages.setNumColumns(display.getWidth()/95);
+        sdcardImages.setClipToPadding(false);
+        sdcardImages.setOnItemClickListener(Main.this);
+        imageAdapter = new ImageAdapter(getApplicationContext()); 
+        sdcardImages.setAdapter(imageAdapter);
+    }
+
+    private void loadImages() {
+        final Object data = getLastNonConfigurationInstance();
+        if (data == null) {
+            new LoadImagesFromSDCard().execute();
+        } else {
+            final LoadedImage[] photos = (LoadedImage[]) data;
+            if (photos.length == 0) {
+                new LoadImagesFromSDCard().execute();
+            }
+            for (LoadedImage photo : photos) {
+                addImage(photo);
+            }
+        }
+    }
+
+    
+    private void addImage(LoadedImage... value) {
+        for (LoadedImage image : value) {
+            imageAdapter.addPhoto(image);
+            imageAdapter.notifyDataSetChanged();
+        }
+    }
+    
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        final GridView grid = sdcardImages;
+        final int count = grid.getChildCount();
+        final LoadedImage[] list = new LoadedImage[count];
+
+        for (int i = 0; i < count; i++) {
+            final ImageView v = (ImageView) grid.getChildAt(i);
+            list[i] = new LoadedImage(((BitmapDrawable) v.getDrawable()).getBitmap());
+        }
+
+        return list;
+    }
+
+    class LoadImagesFromSDCard extends AsyncTask<Object, LoadedImage, Object> {
+    	@Override
+    	protected Object doInBackground(Object... params) {
+            //setProgressBarIndeterminateVisibility(true); 
+            Bitmap bitmap = null;
+            Bitmap newBitmap = null;
+            Uri uri = null;            
+         
+            // Set up an array of the Image ID column we want
+            String[] projection = {
+            		MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.DATE_TAKEN};
+            // Create the cursor pointing to the SDCard
+            Cursor cursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection, // Which columns to return
+                    null,       // Return all rows
+                    null,       
+                    null); 
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+            int size = cursor.getCount();
+            // If size is 0, there are no images on the SD Card.
+            if (size == 0) {
+                //No Images available, post some message to the user
+            }
+            int imageID = 0;
+            
+            for (int i = 0; i < size; i++) {
+                cursor.moveToPosition(i);
+                
+               imageID = cursor.getInt(columnIndex);
+               Long timestamp = 1321403384000l;
+               Long date = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
+               uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imageID);
+               
+               if (date > timestamp)
+                	{
+                		
+                		try {
+                			bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+                			if (bitmap != null) {
+                				newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+                				bitmap.recycle();
+                				if (newBitmap != null) {
+                					publishProgress(new LoadedImage(newBitmap));
+                				}
+                			}
+                } catch (IOException e) {
+                    //Error fetching image, try to recover
+                }
+                	}
+            }
+            cursor.close();
+            
+            InputStream is = null;
+            String url = "http://" +"blog.sptechnolab.com/wp-content/uploads/2011/02/c2.jpg";
+            try{
+     			 is = (InputStream) new URL(url).getContent();
+     			image = Drawable.createFromStream(is, "src name");
+  
+     		}catch (Exception e) {
+     			System.out.println("Exc="+e);
+
+     		}
+            
+            img.setImageDrawable(image);
+           
+            bitmap = BitmapFactory.decodeStream(is);
+			if (bitmap != null) {
+				newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+				bitmap.recycle();
+				if (newBitmap != null) {
+					publishProgress(new LoadedImage(newBitmap));
+				}
+			}
+            
+            
+            return null;
+        }
+   
+        @Override
+        public void onProgressUpdate(LoadedImage... value) {
+            addImage(value);
+        }
+  
+        @Override
+        protected void onPostExecute(Object result) {
+            setProgressBarIndeterminateVisibility(false);
+        }
+    }
+    
+   
+
+    class ImageAdapter extends BaseAdapter {
+
+        private Context mContext; 
+        private ArrayList<LoadedImage> photos = new ArrayList<LoadedImage>();
+
+        public ImageAdapter(Context context) { 
+            mContext = context; 
+        } 
+
+        public void addPhoto(LoadedImage photo) { 
+            photos.add(photo); 
+        } 
+
+        public int getCount() { 
+            return photos.size(); 
+        } 
+
+        public Object getItem(int position) { 
+            return photos.get(position); 
+        } 
+
+        public long getItemId(int position) { 
+            return position; 
+        } 
+
+        public View getView(int position, View convertView, ViewGroup parent) { 
+            final ImageView imageView; 
+            if (convertView == null) { 
+                imageView = new ImageView(mContext); 
+            } else { 
+                imageView = (ImageView) convertView; 
+            } 
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            imageView.setPadding(1, 1, 1, 1);
+            imageView.setImageBitmap(photos.get(position).getBitmap());
+            return imageView; 
+        } 
+    }
+
+    private static class LoadedImage {
+        Bitmap mBitmap;
+
+        LoadedImage(Bitmap bitmap) {
+            mBitmap = bitmap;
+        }
+
+        public Bitmap getBitmap() {
+            return mBitmap;
+        }
+    }
+
+    
+    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {        
+        int columnIndex = 0;
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = managedQuery( MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
+                projection,
+                null, 
+                null, 
+                null);
+        if (cursor != null) {
+            columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToPosition(position);
+            String imagePath = cursor.getString(columnIndex); 
+
+            FileInputStream is = null;
+            BufferedInputStream bis = null;
+            try {
+                is = new FileInputStream(new File(imagePath));
+                bis = new BufferedInputStream(is);
+                Bitmap bitmap = BitmapFactory.decodeStream(bis);
+                Bitmap useThisBitmap = Bitmap.createScaledBitmap(bitmap, parent.getWidth(), parent.getHeight(), true);
+                bitmap.recycle();
+            } 
+            catch (Exception e) {
+                //Try to recover
+            }
+            finally {
+                try {
+                    if (bis != null) {
+                        bis.close();
+                    }
+                    if (is != null) {
+                        is.close();
+                    }
+                    cursor.close();
+                    projection = null;
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+}
