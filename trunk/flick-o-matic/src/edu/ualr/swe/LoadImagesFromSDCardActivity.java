@@ -44,24 +44,12 @@ import android.widget.Toast;
 public class LoadImagesFromSDCardActivity extends Activity implements
 OnItemClickListener {
     
-  /**
-     * Grid view holding the images.
-     */
-    private GridView sdcardImages;
-    /**
-     * Image adapter for the grid view.
-     */
+      private GridView sdcardImages;
     private ImageAdapter imageAdapter;
-    /**
-     * Display used for getting the width of the screen. 
-     */
     private Display display;
+    ImageView img;
+    Drawable image;
 
-    /**
-     * Creates the content view, sets up the grid, the adapter, and the click listener.
-     * 
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
@@ -70,15 +58,14 @@ OnItemClickListener {
         setContentView(R.layout.main);
 
         display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-
+        img = (ImageView)findViewById(R.id.imageView1);
         setupViews();
         setProgressBarIndeterminateVisibility(true); 
         loadImages();
+        loadFlickrImages();
+        img.setImageDrawable(image);
     }
 
-    /**
-     * Free up bitmap related resources.
-     */
     protected void onDestroy() {
         super.onDestroy();
         final GridView grid = sdcardImages;
@@ -89,20 +76,16 @@ OnItemClickListener {
             ((BitmapDrawable) v.getDrawable()).setCallback(null);
         }
     }
-    /**
-     * Setup the grid view.
-     */
+
     private void setupViews() {
         sdcardImages = (GridView) findViewById(R.id.sdcard);
         sdcardImages.setNumColumns(display.getWidth()/95);
         sdcardImages.setClipToPadding(false);
-        sdcardImages.setOnItemClickListener(this);
+        sdcardImages.setOnItemClickListener(Main.this);
         imageAdapter = new ImageAdapter(getApplicationContext()); 
         sdcardImages.setAdapter(imageAdapter);
     }
-    /**
-     * Load images.
-     */
+
     private void loadImages() {
         final Object data = getLastNonConfigurationInstance();
         if (data == null) {
@@ -117,11 +100,22 @@ OnItemClickListener {
             }
         }
     }
-    /**
-     * Add image(s) to the grid view adapter.
-     * 
-     * @param value Array of LoadedImages references
-     */
+    
+    private void loadFlickrImages() {
+        final Object data = getLastNonConfigurationInstance();
+        if (data == null) {
+            new LoadImagesFromFlickr().execute();
+        } else {
+            final LoadedImage[] photos = (LoadedImage[]) data;
+            if (photos.length == 0) {
+            	new LoadImagesFromFlickr().execute();
+            }
+           // for (LoadedImage photo : photos) {
+             //   addImage(photo);
+            //}
+        }
+    }
+    
     private void addImage(LoadedImage... value) {
         for (LoadedImage image : value) {
             imageAdapter.addPhoto(image);
@@ -129,11 +123,6 @@ OnItemClickListener {
         }
     }
     
-    /**
-     * Save bitmap images into a list and return that list. 
-     * 
-     * @see android.app.Activity#onRetainNonConfigurationInstance()
-     */
     @Override
     public Object onRetainNonConfigurationInstance() {
         final GridView grid = sdcardImages;
@@ -147,27 +136,14 @@ OnItemClickListener {
 
         return list;
     }
-    /**
-     * Async task for loading the images from the SD card. 
-     * 
-     * @author Mihai Fonoage
-     *
-     */
+
     class LoadImagesFromSDCard extends AsyncTask<Object, LoadedImage, Object> {
-        
-        /**
-         * Load images from SD Card in the background, and display each image on the screen. 
-         *  
-         * @see android.os.AsyncTask#doInBackground(Params[])
-         */
-        @Override
-        protected Object doInBackground(Object... params) {
+    	@Override
+    	protected Object doInBackground(Object... params) {
             //setProgressBarIndeterminateVisibility(true); 
             Bitmap bitmap = null;
             Bitmap newBitmap = null;
             Uri uri = null;            
-            
-            //MediaStore.Images.Media.
          
             // Set up an array of the Image ID column we want
             String[] projection = {
@@ -191,11 +167,11 @@ OnItemClickListener {
             for (int i = 0; i < size; i++) {
                 cursor.moveToPosition(i);
                 
-                imageID = cursor.getInt(columnIndex);
+               imageID = cursor.getInt(columnIndex);
                Long timestamp = 1321403384000l;
                Long date = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
                uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imageID);
-               //MediaStore.Images.Media.query(getContentResolver(), uri, projection).;
+               
                if (date > timestamp)
                 	{
                 		
@@ -216,32 +192,90 @@ OnItemClickListener {
             cursor.close();
             return null;
         }
-        /**
-         * Add a new LoadedImage in the images grid.
-         *
-         * @param value The image.
-         */
+   
         @Override
         public void onProgressUpdate(LoadedImage... value) {
             addImage(value);
         }
-        /**
-         * Set the visibility of the progress bar to false.
-         * 
-         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-         */
+  
         @Override
         protected void onPostExecute(Object result) {
             setProgressBarIndeterminateVisibility(false);
         }
     }
+    
+    
+    class LoadImagesFromFlickr extends AsyncTask<Object, LoadedImage, Object> {
+        
 
-    /**
-     * Adapter for our image files. 
-     * 
-     * @author Mihai Fonoage
-     *
-     */
+        @Override
+        protected Object doInBackground(Object... params) {
+                //setProgressBarIndeterminateVisibility(true); 
+	        	
+	                   
+	                   
+	               image = LoadImageFromWebOperations("http://" +"blog.sptechnolab.com/wp-content/uploads/2011/02/c2.jpg");
+                   //img.setImageDrawable(image);
+                   //setContentView(img);
+                   
+       			//Drawable image = LoadImageFromWebOperations("http://dl.dropbox.com/u/1634015/photos/2011-09-05%2004-17-05-697.jpg");
+       			
+       			//imgView = (ImageView)findViewById(R.id.imageView1);
+       			//imgView.setImageDrawable(image);
+       			
+
+                 
+
+                return null;
+            }
+       
+            @Override
+            public void onProgressUpdate(LoadedImage... value) {
+                addImage(value);
+            }
+      
+            @Override
+            protected void onPostExecute(Object result) {
+                setProgressBarIndeterminateVisibility(false);
+                
+            }
+            public Object fetch(String address) throws MalformedURLException,IOException {
+        		URL url = new URL(address);
+        		Object content = url.getContent();
+        		return content;
+        	}
+            /*
+            private Drawable LoadImageFromWebOperations(String url)
+            {
+            try
+            {
+            InputStream is = (InputStream) new URL(url).getContent();
+            Drawable d = Drawable.createFromStream(is, "src name");
+            return d;
+            }catch (Exception e) {
+            System.out.println("Exc="+e);
+            return null;
+            }
+            }
+            */
+            
+            private Drawable LoadImageFromWebOperations(String url){
+         		try{
+         			InputStream is = (InputStream) new URL(url).getContent();
+         			Drawable d = Drawable.createFromStream(is, "src name");
+         			return d;
+         		}catch (Exception e) {
+         			System.out.println("Exc="+e);
+         			return null;
+         		}
+         	}
+            
+        }
+    
+    
+    
+    
+
     class ImageAdapter extends BaseAdapter {
 
         private Context mContext; 
@@ -281,9 +315,6 @@ OnItemClickListener {
         } 
     }
 
-    /**
-     * A LoadedImage contains the Bitmap loaded for the image.
-     */
     private static class LoadedImage {
         Bitmap mBitmap;
 
@@ -295,9 +326,8 @@ OnItemClickListener {
             return mBitmap;
         }
     }
-    /**
-     * When an image is clicked, load that image as a puzzle. 
-     */
+
+    
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {        
         int columnIndex = 0;
         String[] projection = {MediaStore.Images.Media.DATA};
@@ -319,7 +349,6 @@ OnItemClickListener {
                 Bitmap bitmap = BitmapFactory.decodeStream(bis);
                 Bitmap useThisBitmap = Bitmap.createScaledBitmap(bitmap, parent.getWidth(), parent.getHeight(), true);
                 bitmap.recycle();
-                //Display bitmap (useThisBitmap)
             } 
             catch (Exception e) {
                 //Try to recover
@@ -339,5 +368,4 @@ OnItemClickListener {
             }
         }
     }
-
 }
