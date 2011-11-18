@@ -81,7 +81,8 @@ public class AuthActivity extends Activity {
 	
 	private void load(OAuth oauth) {
 		if (oauth != null) {
-			new LoadUserTask(this, userIcon).execute(oauth);
+			//TODO: FIX THIS
+			//new LoadUserTask(this, userIcon).execute(oauth);
 			new LoadPhotostreamTask(this, listView).execute(oauth);
 		}
 	}
