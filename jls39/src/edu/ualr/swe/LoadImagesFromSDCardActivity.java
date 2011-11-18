@@ -81,8 +81,8 @@ OnItemClickListener {
     ImageView img;
     Bitmap image;
     ArrayList urlsArray = new ArrayList();
-    String apiKey = "8d7dec18e1e325fa0df671b184ff91db";
-    String apiSecret = "1cf670e8f539eda9";
+    String apiKey = "3e4e3f840e6a32adf95ad8a6069cc4c3";
+    String apiSecret = "adec4fe30088d75d";
     String sha1Key = "";
 	
     public static final String CALLBACK_SCHEME = "flick-o-matic-oauth";
@@ -113,13 +113,7 @@ OnItemClickListener {
         // Request progress bar
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.main);
-        
-        this.textUserTitle = (TextView) this.findViewById(R.id.profilePageTitle);
-		this.textUserName = (TextView) this.findViewById(R.id.userScreenName);
-		this.textUserId = (TextView) this.findViewById(R.id.userId);
-		this.userIcon = (ImageView) this.findViewById(R.id.userImage);
-		this.listView = (ListView) this.findViewById(R.id.imageList);
-		this.refreshButton = (ImageButton) this.findViewById(R.id.btnRefreshUserProfile); 
+       
 		TextView dbg = (TextView)findViewById(R.id.textView1);
 		
         OAuth oauth = getOAuthToken();
@@ -132,7 +126,6 @@ OnItemClickListener {
 
         display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
-        
         setupViews();
         setProgressBarIndeterminateVisibility(true); 
         
@@ -154,9 +147,7 @@ OnItemClickListener {
 		
 		urlsArray = buildUrlsArray(jsonResponse);
 		 //dbg.setText(jsonResponse);
-        loadImages();
-        
-     
+        loadImages();    
     }
 
     /**
