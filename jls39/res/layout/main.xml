@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    
-    <GridView  
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <GridView
         android:id="@+id/sdcard"
-        android:layout_width="fill_parent" 
-        android:layout_height="fill_parent"
-        android:verticalSpacing="4dp"
-        android:horizontalSpacing="4dp" 
-        android:stretchMode="columnWidth"
+        android:layout_width="fill_parent"
+        android:layout_height="256dp"
+        android:layout_weight="0.78"
+        android:gravity="center"
+        android:horizontalSpacing="4dp"
         android:numColumns="2"
-        android:gravity="center" />
-        
-</FrameLayout>  
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="4dp" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
+</LinearLayout>  

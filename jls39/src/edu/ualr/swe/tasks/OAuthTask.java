@@ -18,7 +18,7 @@ import com.gmail.yuyang226.flickr.Flickr;
 import com.gmail.yuyang226.flickr.auth.Permission;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 
-import edu.ualr.swe.AuthActivity;
+import edu.ualr.swe.LoadImagesFromSDCardActivity;
 import edu.ualr.swe.FlickrHelper;
 
 //import com.gmail.yuyang226.flickrj.sample.android.FlickrHelper;
@@ -34,7 +34,7 @@ public class OAuthTask extends AsyncTask<Void, Integer, String> {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(OAuthTask.class);
-	private static final Uri OAUTH_CALLBACK_URI = Uri.parse(AuthActivity.CALLBACK_SCHEME
+	private static final Uri OAUTH_CALLBACK_URI = Uri.parse(LoadImagesFromSDCardActivity.CALLBACK_SCHEME
 			+ "://oauth"); //$NON-NLS-1$
 
 	/**
@@ -100,7 +100,7 @@ public class OAuthTask extends AsyncTask<Void, Integer, String> {
 	 */
 	private void saveTokenSecrent(String tokenSecret) {
 		logger.debug("request token: " + tokenSecret); //$NON-NLS-1$
-		AuthActivity act = (AuthActivity) mContext;
+		LoadImagesFromSDCardActivity act = (LoadImagesFromSDCardActivity) mContext;
 		act.saveOAuthToken(null, null, null, tokenSecret);
 		logger.debug("oauth token secret saved: {}", tokenSecret); //$NON-NLS-1$
 	}
