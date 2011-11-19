@@ -43,14 +43,16 @@ public final class R {
         public static final int ic_launcher=0x7f020002;
         public static final int icon=0x7f020003;
         public static final int refresh=0x7f020004;
-        public static final int title_button=0x7f020005;
-        public static final int views=0x7f020006;
+        public static final int splash=0x7f020005;
+        public static final int title_button=0x7f020006;
+        public static final int views=0x7f020007;
     }
     public static final class id {
         public static final int btnRefreshUserProfile=0x7f080001;
         public static final int imageIcon=0x7f080008;
         public static final int imageList=0x7f080005;
         public static final int imageTitle=0x7f080009;
+        public static final int imageView1=0x7f08000c;
         public static final int profilePageTitle=0x7f080000;
         public static final int sdcard=0x7f080006;
         public static final int textView1=0x7f080007;
@@ -64,6 +66,7 @@ public final class R {
         public static final int auth_screen=0x7f030000;
         public static final int main=0x7f030001;
         public static final int row=0x7f030002;
+        public static final int splash=0x7f030003;
     }
     public static final class string {
         /**  API_KEY AND STUFF 

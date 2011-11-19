@@ -13,8 +13,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -29,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import com.gmail.yuyang226.flickr.oauth.OAuth;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 import com.gmail.yuyang226.flickr.people.User;
+import com.gmail.yuyang226.flickr.util.Base64;
+
 import edu.ualr.swe.tasks.GetOAuthTokenTask;
 import edu.ualr.swe.tasks.LoadPhotostreamTask;
 import edu.ualr.swe.tasks.LoadUserTask;
@@ -47,6 +54,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -152,6 +160,61 @@ OnItemClickListener {
 		 dbg.setText(jsonResponse);
         loadImages();
         
+        
+        
+        
+        
+        
+        
+ /***auth*****
+        
+        String authArgs = apiSecret + apiKey; 
+        String timestampCurrent = String.valueOf(System.currentTimeMillis()/1000);
+        String baseString = "GET&http%3A%2F%2Fwww.flickr.com%2Fservices%2Foauth%2Frequest_token&oauth_callback%3Dhttp%253A%252F%252Fwww.example.com%26oauth_consumer_key%3D"+apiKey+"%26oauth_nonce%3D95613445%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D"+timestampCurrent+"%26oauth_version%3D1.0";
+        
+        String base_string = "This is a test string";
+        String key = "testKey";
+        try {
+            Mac mac = Mac.getInstance("HmacSHA1");
+            SecretKeySpec secret = new SecretKeySpec(key.getBytes("UTF-8"), mac.getAlgorithm());
+            mac.init(secret);
+            byte[] digest = mac.doFinal(base_string.getBytes());
+
+            String enc = new String(digest);
+
+            // Base 64 Encode the results
+            String retVal = Base64.encodeBase64String(enc.getBytes());
+            Log.v(TAG, "String: " + base_string);
+            Log.v(TAG, "key: " + key);
+            Log.v(TAG, "result: " + retVal);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        
+        
+        final HttpGet getAuth = new HttpGet("http://www.flickr.com/services/oauth/request_token?oauth_nonce=95313478&oauth_timestamp="+ timestampCurrent +"&oauth_consumer_key=" + apiKey + "&oauth_signature_method=HMAC-SHA1&oauth_version=1.0"
++"&oauth_signature=7w18YS2bONDPL%2FzgyzP5XTr5af4%3D"
++"&oauth_callback=http%3A%2F%2Fwww.example.com");
+        HttpClient httpclientAuth = new DefaultHttpClient();
+	    ResponseHandler<String> responseHandlerAuth = new BasicResponseHandler();
+	    String authResponse="cats";
+        
+	    try {		
+	    	authResponse = httpclientAuth.execute(getAuth, responseHandlerAuth);
+		} catch (ClientProtocolException e) {
+			authResponse = "ClientProtocolE";
+			e.printStackTrace();
+		} catch (IOException e) {
+			authResponse = "IOException";
+			e.printStackTrace();
+		}
+		*/
+       
+	   // dbg.setText(authResponse);
+	    
+	    
+	    
+        
      
     }
 
@@ -160,7 +223,7 @@ OnItemClickListener {
      */
     protected void onDestroy() {
         super.onDestroy();
-        final GridView grid = sdcardImages;
+       /* final GridView grid = sdcardImages;
         final int count = grid.getChildCount();
         ImageView v = null;
         for (int i = 0; i < count; i++) {
@@ -168,7 +231,7 @@ OnItemClickListener {
             ((BitmapDrawable) v.getDrawable()).setCallback(null);
         }
         
-        listView.setAdapter(null);
+        listView.setAdapter(null);*/
     }
     /**
      * Setup the grid view.
@@ -618,4 +681,6 @@ OnItemClickListener {
 			return localUrlsArray;
 	   }
 
+	  
+	  
 }
