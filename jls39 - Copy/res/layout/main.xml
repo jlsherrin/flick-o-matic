@@ -8,7 +8,7 @@
     <GridView
         android:id="@+id/sdcard"
         android:layout_width="fill_parent"
-        android:layout_height="256dp"
+        android:layout_height="456dp"
         android:layout_weight="0.78"
         android:gravity="center"
         android:horizontalSpacing="4dp"
