@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        style="@style/TitleBar"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/profilePageTitle"
+            style="@style/TitleBarText"
+            android:text="@string/user_profile_view_name" />
+
+        <ImageView style="@style/TitleBarSeparator" />
+
+        <ImageButton
+            android:id="@+id/btnRefreshUserProfile"
+            style="@style/TitleBarAction"
+            android:contentDescription="@string/btn_refresh_user_profile_title"
+            android:src="@drawable/refresh" />
+
+        <ImageView style="@style/TitleBarSeparator" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dip" >
+
+        <ImageView
+            android:id="@+id/userImage"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="8dip"
+            android:minHeight="24dp"
+            android:minWidth="24dp"
+            android:src="@drawable/icon" />
+
+        <TextView
+            android:id="@+id/userScreenName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dip"
+            android:layout_toRightOf="@id/userImage"
+            android:gravity="right"
+            android:text=""
+            android:textColor="#aaaa00"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/userId"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/userScreenName"
+            android:layout_below="@id/userScreenName"
+            android:layout_marginTop="10dip"
+            android:layout_toRightOf="@id/userImage"
+            android:gravity="right"
+            android:text="" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/imageList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:drawSelectorOnTop="true" />
+
+    <TextView
+        android:id="@+id/android:empty"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_no_items" />
+
+</LinearLayout>
