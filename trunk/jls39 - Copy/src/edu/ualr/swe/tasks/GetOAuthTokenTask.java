@@ -16,9 +16,9 @@ import edu.ualr.swe.*;
 public class GetOAuthTokenTask extends AsyncTask<String, Integer, OAuth> {
 	private static final Logger logger = LoggerFactory.getLogger(GetOAuthTokenTask.class);
 
-	private LoadImagesFromSDCardActivity activity;
+	private Main activity;
 
-	public GetOAuthTokenTask(LoadImagesFromSDCardActivity loadImagesFromSDCardActivity) {
+	public GetOAuthTokenTask(Main loadImagesFromSDCardActivity) {
 		this.activity = loadImagesFromSDCardActivity;
 	}
 
