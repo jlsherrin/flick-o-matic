@@ -2,30 +2,38 @@ package edu.ualr.swe.tasks;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.widget.ListView;
+import android.widget.GridView;
+import edu.ualr.swe.LoadImagesFromSDCardActivity;
+import edu.ualr.swe.LoadImagesFromSDCardActivity.ImageAdapter;
+
 
 import com.gmail.yuyang226.flickr.Flickr;
 import com.gmail.yuyang226.flickr.oauth.OAuth;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 import com.gmail.yuyang226.flickr.people.User;
+import com.gmail.yuyang226.flickr.photos.Photo;
 import com.gmail.yuyang226.flickr.photos.PhotoList;
+import com.gmail.yuyang226.flickr.photos.Size;
 
 
 import edu.ualr.swe.FlickrHelper;
 import edu.ualr.swe.images.LazyAdapter;
 
-public class LoadPhotostreamTask extends AsyncTask<OAuth, Void, PhotoList> {
+public class LoadPhotostreamTask extends AsyncTask<OAuth, Void, PhotoList>{
 
-	private ListView listView;
+	private GridView grid;
 	private Activity activity;
 
 	public LoadPhotostreamTask(Activity activity,
-			ListView listView) {
+			GridView gridView) {
 		this.activity = activity;
-		this.listView = listView;
+		this.grid = gridView;
 	}
 
 	/* (non-Javadoc)
@@ -42,6 +50,18 @@ public class LoadPhotostreamTask extends AsyncTask<OAuth, Void, PhotoList> {
 		extras.add("views"); //$NON-NLS-1$
 		User user = arg0[0].getUser();
 		try {
+			PhotoList photoList = f.getPeopleInterface().getPhotos(user.getId(), extras, 20, 1);
+			for(Photo photo : photoList){
+				
+				Bitmap bitmap = BitmapFactory.decodeStream(f.getPhotosInterface().getImageAsStream(photo, Size.THUMB));
+				if (bitmap != null) {
+					Bitmap newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+					bitmap.recycle();
+					if (newBitmap != null) {
+						publishProgress();
+					}
+				}
+			}
 			return f.getPeopleInterface().getPhotos(user.getId(), extras, 20, 1);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -53,12 +73,11 @@ public class LoadPhotostreamTask extends AsyncTask<OAuth, Void, PhotoList> {
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 	 */
-	@Override
 	protected void onPostExecute(PhotoList result) {
 		if (result != null) {
-			LazyAdapter adapter = 
-					new LazyAdapter(this.activity, result);
-			this.listView.setAdapter(adapter);
+			//LazyAdapter adapter = new LazyAdapter(this.activity, result);
+			//ImageAdapter adapter =  new ImageAdapter(getApplicationContext());
+			//this.grid.setAdapter(adapter);
 		}
 	}
 	

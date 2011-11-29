@@ -15,7 +15,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -31,15 +33,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.gmail.yuyang226.flickr.Flickr;
 import com.gmail.yuyang226.flickr.oauth.OAuth;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 import com.gmail.yuyang226.flickr.people.User;
+import com.gmail.yuyang226.flickr.photos.Photo;
+import com.gmail.yuyang226.flickr.photos.PhotoList;
+import com.gmail.yuyang226.flickr.photos.Size;
+//import com.gmail.yuyang226.flickr.photos.Photo;
 import com.gmail.yuyang226.flickr.util.Base64;
 
 import edu.ualr.swe.tasks.GetOAuthTokenTask;
 import edu.ualr.swe.tasks.LoadPhotostreamTask;
 import edu.ualr.swe.tasks.LoadUserTask;
 import edu.ualr.swe.tasks.OAuthTask;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -84,26 +93,22 @@ OnItemClickListener {
     private Display display;
     ImageView img;
     Bitmap image;
-    ArrayList urlsArray = new ArrayList();
+    ArrayList<String> urlsArray = new ArrayList<String>();
     String apiKey = "8d7dec18e1e325fa0df671b184ff91db";
     String apiSecret = "1cf670e8f539eda9";
     String sha1Key = "";
 	
     public static final String CALLBACK_SCHEME = "flick-o-matic-oauth";
-	public static final String PREFS_NAME = "flick-o-matic-pref"; 
+	public static final String PREFS_NAME = "prefFile"; 
 	public static final String KEY_OAUTH_TOKEN = "flick-o-matic-oauthToken"; 
 	public static final String KEY_TOKEN_SECRET = "flick-o-matic-tokenSecret"; 
 	public static final String KEY_USER_NAME = "flick-o-matic-userName"; 
 	public static final String KEY_USER_ID = "flick-o-matic-userId"; 
 	
 	private ListView listView;
-	private TextView textUserTitle;
-	private TextView textUserName;
-	private TextView textUserId;
 	private ImageView userIcon;
-	private ImageButton refreshButton;
 	
-	private static final Logger logger = LoggerFactory.getLogger(AuthActivity.class);
+	private static final Logger logger = LoggerFactory.getLogger(LoadImagesFromSDCardActivity.class);
     
 
     /**
@@ -117,105 +122,23 @@ OnItemClickListener {
         // Request progress bar
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.main);
-        
-        this.textUserTitle = (TextView) this.findViewById(R.id.profilePageTitle);
-		this.textUserName = (TextView) this.findViewById(R.id.userScreenName);
-		this.textUserId = (TextView) this.findViewById(R.id.userId);
-		this.userIcon = (ImageView) this.findViewById(R.id.userImage);
-		this.listView = (ListView) this.findViewById(R.id.imageList);
-		this.refreshButton = (ImageButton) this.findViewById(R.id.btnRefreshUserProfile); 
+
 		TextView dbg = (TextView)findViewById(R.id.textView1);
 		
-       /* OAuth oauth = getOAuthToken();
-		if (oauth == null || oauth.getUser() == null) {
-			OAuthTask task = new OAuthTask(this);
-			task.execute();
-		} else {
-			load(oauth);
-		}
-*/
-        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-
+        OAuth oauth = getOAuthToken();
+        if (oauth == null || oauth.getUser() == null) {
+     		OAuthTask task = new OAuthTask(this);
+     		task.execute();
+     	}else{      
+     			
+	        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+	        
+	        setupViews();
+	        setProgressBarIndeterminateVisibility(true);      
+	     	
+	        loadImages(oauth);
+     	}
         
-        setupViews();
-        setProgressBarIndeterminateVisibility(true); 
-        
-        //TODO: make user id dynamic
-        final HttpGet get = new HttpGet("http://api.flickr.com/services/rest/?&method=flickr.people.getPublicPhotos&api_key=8d7dec18e1e325fa0df671b184ff91db&user_id=69944181@N02&format=json&nojsoncallback=1");
-        HttpClient httpclient = new DefaultHttpClient();
-	    ResponseHandler<String> responseHandler = new BasicResponseHandler();
-	    String jsonResponse="";
-	    
-		try {		
-			jsonResponse = httpclient.execute(get, responseHandler);
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			jsonResponse = "IOException";
-			e.printStackTrace();
-		}
-		
-		urlsArray = buildUrlsArray(jsonResponse);
-		 dbg.setText(jsonResponse);
-        loadImages();
-        
-        
-        
-        
-        
-        
-        
- /***auth*****
-        
-        String authArgs = apiSecret + apiKey; 
-        String timestampCurrent = String.valueOf(System.currentTimeMillis()/1000);
-        String baseString = "GET&http%3A%2F%2Fwww.flickr.com%2Fservices%2Foauth%2Frequest_token&oauth_callback%3Dhttp%253A%252F%252Fwww.example.com%26oauth_consumer_key%3D"+apiKey+"%26oauth_nonce%3D95613445%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D"+timestampCurrent+"%26oauth_version%3D1.0";
-        
-        String base_string = "This is a test string";
-        String key = "testKey";
-        try {
-            Mac mac = Mac.getInstance("HmacSHA1");
-            SecretKeySpec secret = new SecretKeySpec(key.getBytes("UTF-8"), mac.getAlgorithm());
-            mac.init(secret);
-            byte[] digest = mac.doFinal(base_string.getBytes());
-
-            String enc = new String(digest);
-
-            // Base 64 Encode the results
-            String retVal = Base64.encodeBase64String(enc.getBytes());
-            Log.v(TAG, "String: " + base_string);
-            Log.v(TAG, "key: " + key);
-            Log.v(TAG, "result: " + retVal);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        
-        
-        final HttpGet getAuth = new HttpGet("http://www.flickr.com/services/oauth/request_token?oauth_nonce=95313478&oauth_timestamp="+ timestampCurrent +"&oauth_consumer_key=" + apiKey + "&oauth_signature_method=HMAC-SHA1&oauth_version=1.0"
-+"&oauth_signature=7w18YS2bONDPL%2FzgyzP5XTr5af4%3D"
-+"&oauth_callback=http%3A%2F%2Fwww.example.com");
-        HttpClient httpclientAuth = new DefaultHttpClient();
-	    ResponseHandler<String> responseHandlerAuth = new BasicResponseHandler();
-	    String authResponse="cats";
-        
-	    try {		
-	    	authResponse = httpclientAuth.execute(getAuth, responseHandlerAuth);
-		} catch (ClientProtocolException e) {
-			authResponse = "ClientProtocolE";
-			e.printStackTrace();
-		} catch (IOException e) {
-			authResponse = "IOException";
-			e.printStackTrace();
-		}
-		*/
-       
-	   // dbg.setText(authResponse);
-	    
-	    
-	    
-        
-     
     }
 
     /**
@@ -223,15 +146,6 @@ OnItemClickListener {
      */
     protected void onDestroy() {
         super.onDestroy();
-       /* final GridView grid = sdcardImages;
-        final int count = grid.getChildCount();
-        ImageView v = null;
-        for (int i = 0; i < count; i++) {
-            v = (ImageView) grid.getChildAt(i);
-            ((BitmapDrawable) v.getDrawable()).setCallback(null);
-        }
-        
-        listView.setAdapter(null);*/
     }
     /**
      * Setup the grid view.
@@ -247,16 +161,18 @@ OnItemClickListener {
     /**
      * Load images.
      */
-    private void loadImages() {
+    private void loadImages(OAuth oauth) {
         final Object data = getLastNonConfigurationInstance();
         if (data == null) {
-            new LoadImagesFromSDCard().execute();
+        	LoadImagesFromSDCard task = new LoadImagesFromSDCard(oauth);
+            task.execute();
         } else {
-            final LoadedImage[] photos = (LoadedImage[]) data;
+            final Photo[] photos = (Photo[]) data;
             if (photos.length == 0) {
-                new LoadImagesFromSDCard().execute();
+            	LoadImagesFromSDCard task = new LoadImagesFromSDCard(oauth);
+                task.execute();
             }
-            for (LoadedImage photo : photos) {
+            for (Photo photo : photos) {
                 addImage(photo);
             }
         }
@@ -264,10 +180,10 @@ OnItemClickListener {
     /**
      * Add image(s) to the grid view adapter.
      * 
-     * @param value Array of LoadedImages references
+     * @param value Array of Photos references
      */
-    private void addImage(LoadedImage... value) {
-        for (LoadedImage image : value) {
+    private void addImage(Photo... value) {
+        for (Photo image : value) {
             imageAdapter.addPhoto(image);
             imageAdapter.notifyDataSetChanged();
         }
@@ -282,11 +198,11 @@ OnItemClickListener {
     public Object onRetainNonConfigurationInstance() {
         final GridView grid = sdcardImages;
         final int count = grid.getChildCount();
-        final LoadedImage[] list = new LoadedImage[count];
+        final Photo[] list = new Photo[count];
 
         for (int i = 0; i < count; i++) {
             final ImageView v = (ImageView) grid.getChildAt(i);
-            list[i] = new LoadedImage(((BitmapDrawable) v.getDrawable()).getBitmap());
+            //list[i] = new Photo(((BitmapDrawable) v.getDrawable()).getBitmap());
         }
 
         return list;
@@ -297,8 +213,11 @@ OnItemClickListener {
      * @author Mihai Fonoage
      *
      */
-    class LoadImagesFromSDCard extends AsyncTask<Object, LoadedImage, Object> {
-        
+    class LoadImagesFromSDCard extends AsyncTask<Object, Photo, Object> {
+        private OAuth oauth;
+    	public LoadImagesFromSDCard(OAuth o){
+        	this.oauth = o;
+        }
         /**
          * Load images from SD Card in the background, and display each image on the screen. 
          *  
@@ -349,7 +268,7 @@ OnItemClickListener {
                 				newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
                 				bitmap.recycle();
                 				if (newBitmap != null) {
-                					publishProgress(new LoadedImage(newBitmap));
+                					publishProgress(new Photo(newBitmap));
                 				}
                 			}
                 } catch (IOException e) {
@@ -361,37 +280,40 @@ OnItemClickListener {
             
             
             /*load flickr images*/
-            InputStream is = null;
-            for (Object url : urlsArray)  {
-	            try {
-	            	is = (InputStream) new URL((String) url).getContent();
-	            } catch (MalformedURLException e) {
-	            	// TODO Auto-generated catch block
-	            	e.printStackTrace();
-	            } catch (IOException e) {
-	            	// TODO Auto-generated catch block
-	            	e.printStackTrace();
-	            }
-           
-	            bitmap = BitmapFactory.decodeStream(is);
-	            if (bitmap != null) {
-	            	newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-	            	bitmap.recycle();
-	            	if (newBitmap != null) {
-	            		publishProgress(new LoadedImage(newBitmap));
-	            	}
-	            }
-            }
+    		OAuthToken token = oauth.getToken();
+			Flickr f = FlickrHelper.getInstance().getFlickrAuthed(token.getOauthToken(),token.getOauthTokenSecret());
+			logger.debug("1");
+			Set<String> extras = new HashSet<String>();
+			extras.add("url_sq"); //$NON-NLS-1$
+			extras.add("url_l"); //$NON-NLS-1$
+			extras.add("views"); //$NON-NLS-1$
+			User user = oauth.getUser();
+			try {
+				PhotoList photoList = f.getPeopleInterface().getPhotos(user.getId(), extras, 20, 1);
+				for(com.gmail.yuyang226.flickr.photos.Photo photo : photoList){					
+					bitmap = BitmapFactory.decodeStream(f.getPhotosInterface().getImageAsStream(photo, Size.THUMB));
+					if (bitmap != null) {
+						newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+						bitmap.recycle();
+						if (newBitmap != null) {
+							publishProgress(new Photo(newBitmap));
+						}
+					}
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             
             return null;
         }
         /**
-         * Add a new LoadedImage in the images grid.
+         * Add a new Photo in the images grid.
          *
          * @param value The image.
          */
         @Override
-        public void onProgressUpdate(LoadedImage... value) {
+        public void onProgressUpdate(Photo... value) {
             addImage(value);
         }
         /**
@@ -411,16 +333,16 @@ OnItemClickListener {
      * @author Mihai Fonoage
      *
      */
-    class ImageAdapter extends BaseAdapter {
+    public class ImageAdapter extends BaseAdapter {
 
         private Context mContext; 
-        private ArrayList<LoadedImage> photos = new ArrayList<LoadedImage>();
+        private ArrayList<Photo> photos = new ArrayList<Photo>();
 
         public ImageAdapter(Context context) { 
             mContext = context; 
         } 
 
-        public void addPhoto(LoadedImage photo) { 
+        public void addPhoto(Photo photo) { 
             photos.add(photo); 
         } 
 
@@ -451,12 +373,12 @@ OnItemClickListener {
     }
 
     /**
-     * A LoadedImage contains the Bitmap loaded for the image.
+     * A Photo contains the Bitmap loaded for the image.
      */
-    private static class LoadedImage {
+    public static class Photo {
         Bitmap mBitmap;
 
-        LoadedImage(Bitmap bitmap) {
+        Photo(Bitmap bitmap) {
             mBitmap = bitmap;
         }
 
@@ -511,8 +433,9 @@ OnItemClickListener {
     
     private void load(OAuth oauth) {
 		if (oauth != null) {
+			GridView grid = (GridView) findViewById(R.id.sdcard);
 			new LoadUserTask(this, userIcon).execute(oauth);
-			new LoadPhotostreamTask(this, listView).execute(oauth);
+			new edu.ualr.swe.tasks.LoadPhotostreamTask(this, grid).execute(oauth);
 		}
 	}
     
@@ -526,16 +449,6 @@ OnItemClickListener {
 		setIntent(intent);
 	}
 	
-	public void setUser(User user) {
-		textUserTitle.setText(user.getUsername());
-		textUserName.setText(user.getRealName());
-		textUserId.setText(user.getId());
-	}
-	
-	public ImageView getUserIconImageView() {
-		return this.userIcon;
-	}
-
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -681,6 +594,45 @@ OnItemClickListener {
 			return localUrlsArray;
 	   }
 
-	  
-	  
+	  class LoadPhotostreamTask extends AsyncTask<OAuth, Void, PhotoList> {
+
+			private GridView grid;
+
+			public LoadPhotostreamTask(Activity activity, GridView gridView) {
+				this.grid = gridView;
+			}
+
+			/* (non-Javadoc)
+			 * @see android.os.AsyncTask#doInBackground(Params[])
+			 */
+			@Override
+			protected PhotoList doInBackground(OAuth... arg0) {
+				OAuthToken token = arg0[0].getToken();
+				Flickr f = FlickrHelper.getInstance().getFlickrAuthed(token.getOauthToken(),token.getOauthTokenSecret());
+				Set<String> extras = new HashSet<String>();
+				extras.add("url_sq"); //$NON-NLS-1$
+				extras.add("url_l"); //$NON-NLS-1$
+				extras.add("views"); //$NON-NLS-1$
+				User user = arg0[0].getUser();
+				try {
+					return f.getPeopleInterface().getPhotos(user.getId(), extras, 20, 1);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+			/* (non-Javadoc)
+			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+			 */
+			@Override
+			protected void onPostExecute(PhotoList result) {
+				if (result != null) {
+					//LazyAdapter adapter = new LazyAdapter(this.activity, result);
+					ImageAdapter adapter =  new ImageAdapter(getApplicationContext());
+					this.grid.setAdapter(adapter);
+				}
+			}
+	  }  
 }

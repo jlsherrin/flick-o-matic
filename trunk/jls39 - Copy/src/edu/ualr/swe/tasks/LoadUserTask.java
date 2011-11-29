@@ -16,21 +16,19 @@ import com.gmail.yuyang226.flickr.oauth.OAuth;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 import com.gmail.yuyang226.flickr.people.User;
 
-import edu.ualr.swe.AuthActivity;
 import edu.ualr.swe.FlickrHelper;
-//import edu.ualr.swe.LoadImagesFromSDCardActivity;
-import edu.ualr.swe.Main;
+import edu.ualr.swe.LoadImagesFromSDCardActivity;
 import edu.ualr.swe.images.ImageUtils.DownloadedDrawable;
 
 public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 	/**
 	 * 
 	 */
-	private final Main Activity;
+	private final LoadImagesFromSDCardActivity Activity;
 	private ImageView userIconImage;
 	private final Logger logger = LoggerFactory.getLogger(LoadUserTask.class);
 	
-	public LoadUserTask(Main loadImagesFromSDCardActivity, 
+	public LoadUserTask(LoadImagesFromSDCardActivity loadImagesFromSDCardActivity, 
 			ImageView userIconImage) {
 		this.Activity = loadImagesFromSDCardActivity;
 		this.userIconImage = userIconImage;
@@ -87,7 +85,7 @@ public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 		if (user == null) {
 			return;
 		}
-		Activity.setUser(user);
+		//Activity.setUser(user);
 		if (user.getBuddyIconUrl() != null) {
 			String buddyIconUrl = user.getBuddyIconUrl();
 	        if (userIconImage != null) {

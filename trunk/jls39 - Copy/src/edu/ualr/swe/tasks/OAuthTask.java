@@ -18,9 +18,9 @@ import com.gmail.yuyang226.flickr.Flickr;
 import com.gmail.yuyang226.flickr.auth.Permission;
 import com.gmail.yuyang226.flickr.oauth.OAuthToken;
 
-//import edu.ualr.swe.LoadImagesFromSDCardActivity;
+import edu.ualr.swe.LoadImagesFromSDCardActivity;
 import edu.ualr.swe.FlickrHelper;
-import edu.ualr.swe.Main;
+
 
 //import com.gmail.yuyang226.flickrj.sample.android.FlickrHelper;
 //import com.gmail.yuyang226.flickrj.sample.android.FlickrjAndroidSampleActivity;
@@ -35,7 +35,7 @@ public class OAuthTask extends AsyncTask<Void, Integer, String> {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(OAuthTask.class);
-	private static final Uri OAUTH_CALLBACK_URI = Uri.parse(Main.CALLBACK_SCHEME
+	private static final Uri OAUTH_CALLBACK_URI = Uri.parse(LoadImagesFromSDCardActivity.CALLBACK_SCHEME
 			+ "://oauth"); //$NON-NLS-1$
 
 	/**
@@ -84,9 +84,9 @@ public class OAuthTask extends AsyncTask<Void, Integer, String> {
 			Flickr f = FlickrHelper.getInstance().getFlickr();
 			OAuthToken oauthToken = f.getOAuthInterface().getRequestToken(
 					OAUTH_CALLBACK_URI.toString());
-			saveTokenSecrent(oauthToken.getOauthTokenSecret());
+			saveTokenSecret(oauthToken.getOauthTokenSecret());
 			URL oauthUrl = f.getOAuthInterface().buildAuthenticationUrl(
-					Permission.READ, oauthToken);
+					Permission.WRITE, oauthToken);
 			return oauthUrl.toString();
 		} catch (Exception e) {
 			logger.error("Error to oauth", e); //$NON-NLS-1$
@@ -95,13 +95,13 @@ public class OAuthTask extends AsyncTask<Void, Integer, String> {
 	}
 
 	/**
-	 * Saves the oauth token secrent.
+	 * Saves the oauth token secret.
 	 * 
 	 * @param tokenSecret
 	 */
-	private void saveTokenSecrent(String tokenSecret) {
+	private void saveTokenSecret(String tokenSecret) {
 		logger.debug("request token: " + tokenSecret); //$NON-NLS-1$
-		Main act = (Main) mContext;
+		LoadImagesFromSDCardActivity act = (LoadImagesFromSDCardActivity) mContext;
 		act.saveOAuthToken(null, null, null, tokenSecret);
 		logger.debug("oauth token secret saved: {}", tokenSecret); //$NON-NLS-1$
 	}

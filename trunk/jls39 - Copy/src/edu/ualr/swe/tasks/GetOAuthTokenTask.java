@@ -16,16 +16,12 @@ import edu.ualr.swe.*;
 public class GetOAuthTokenTask extends AsyncTask<String, Integer, OAuth> {
 	private static final Logger logger = LoggerFactory.getLogger(GetOAuthTokenTask.class);
 
-	private Main activity;
+	private LoadImagesFromSDCardActivity activity;
 
-	public GetOAuthTokenTask(Main loadImagesFromSDCardActivity) {
+	public GetOAuthTokenTask(LoadImagesFromSDCardActivity loadImagesFromSDCardActivity) {
 		this.activity = loadImagesFromSDCardActivity;
 	}
-
-	public GetOAuthTokenTask(AuthActivity authActivity) {
-		// TODO Auto-generated constructor stub
-	}
-
+	
 	@Override
 	protected OAuth doInBackground(String... params) {
 		String oauthToken = params[0];
