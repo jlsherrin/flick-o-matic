@@ -29,7 +29,7 @@ public void onCreate(Bundle savedInstanceState) {
                 // do nothing
             } finally {
                 finish();
-                Intent i = new Intent(Splash.this, Main.class);
+                Intent i = new Intent(Splash.this, LoadImagesFromSDCardActivity.class);
                 startActivity(i);
                 stop();
             }
