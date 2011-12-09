@@ -1,8 +1,0 @@
-package edu.ualr.swe;
-import java.util.List;
-
-import android.os.Message;
-
-public interface FeedParser {
-        List<Message> parse();
-}
