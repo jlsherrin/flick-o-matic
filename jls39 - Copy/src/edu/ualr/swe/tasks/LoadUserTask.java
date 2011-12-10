@@ -43,16 +43,16 @@ public class LoadUserTask extends AsyncTask<OAuth, Void, User> {
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		mProgressDialog = ProgressDialog.show(Activity,
-				"", "Loading user information..."); //$NON-NLS-1$ //$NON-NLS-2$
-		mProgressDialog.setCanceledOnTouchOutside(true);
-		mProgressDialog.setCancelable(true);
-		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+		//mProgressDialog = ProgressDialog.show(getContext(),
+		//		"", "Loading user information..."); //$NON-NLS-1$ //$NON-NLS-2$
+		//mProgressDialog.setCanceledOnTouchOutside(true);
+		//mProgressDialog.setCancelable(true);
+		//mProgressDialog.setOnCancelListener(new OnCancelListener() {
 			//@Override
-			public void onCancel(DialogInterface dlg) {
-				LoadUserTask.this.cancel(true);
-			}
-		});
+		//	public void onCancel(DialogInterface dlg) {
+		//		LoadUserTask.this.cancel(true);
+		//	}
+	//	});
 	}
 
 	/* (non-Javadoc)
