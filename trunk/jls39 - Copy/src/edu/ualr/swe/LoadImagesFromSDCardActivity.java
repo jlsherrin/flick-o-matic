@@ -124,16 +124,16 @@ OnItemClickListener {
         setContentView(R.layout.main);
 
 		TextView dbg = (TextView)findViewById(R.id.textView1);
-		
+		display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+	        
+	    setupViews();
         OAuth oauth = getOAuthToken();
         if (oauth == null || oauth.getUser() == null) {
      		OAuthTask task = new OAuthTask(this);
      		task.execute();
      	}else{      
      			
-	        display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-	        
-	        setupViews();
+
 	        setProgressBarIndeterminateVisibility(true);      
 	     	
 	        loadImages(oauth);
@@ -499,6 +499,8 @@ OnItemClickListener {
 					Toast.LENGTH_LONG).show();
 			saveOAuthToken(user.getUsername(), user.getId(), token.getOauthToken(), token.getOauthTokenSecret());
 			load(result);
+			 Intent i = new Intent(LoadImagesFromSDCardActivity.this, LoadImagesFromSDCardActivity.class);
+             startActivity(i);
 		}
 	}
     
