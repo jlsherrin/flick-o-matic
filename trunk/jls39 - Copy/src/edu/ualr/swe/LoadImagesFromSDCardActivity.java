@@ -6,18 +6,24 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 package edu.ualr.swe;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import org.xml.sax.SAXException;
+import com.gmail.yuyang226.flickr.FlickrException;
+
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -43,6 +49,8 @@ import com.gmail.yuyang226.flickr.photos.PhotoList;
 import com.gmail.yuyang226.flickr.photos.Size;
 //import com.gmail.yuyang226.flickr.photos.Photo;
 import com.gmail.yuyang226.flickr.util.Base64;
+import com.gmail.yuyang226.flickr.uploader.Uploader;
+import com.gmail.yuyang226.flickr.uploader.UploadMetaData;
 
 import edu.ualr.swe.tasks.GetOAuthTokenTask;
 import edu.ualr.swe.tasks.LoadPhotostreamTask;
@@ -131,12 +139,9 @@ OnItemClickListener {
         if (oauth == null || oauth.getUser() == null) {
      		OAuthTask task = new OAuthTask(this);
      		task.execute();
-     	}else{      
-     			
-
+     	}else{    			
 	        setProgressBarIndeterminateVisibility(true);      
-	     	
-	        loadImages(oauth);
+	     	loadImages(oauth);
      	}
         
     }
@@ -229,7 +234,9 @@ OnItemClickListener {
             Bitmap bitmap = null;
             Bitmap newBitmap = null;
             Uri uri = null;            
-            
+    		OAuthToken token = oauth.getToken();
+            Flickr f = FlickrHelper.getInstance().getFlickrAuthed(token.getOauthToken(),token.getOauthTokenSecret());
+            DataStorage ds = new DataStorage();
             //MediaStore.Images.Media.
          
             // Set up an array of the Image ID column we want
@@ -252,36 +259,41 @@ OnItemClickListener {
             int imageID = 0;
             
             for (int i = 0; i < size; i++) {
-                cursor.moveToPosition(i);
-                
-                imageID = cursor.getInt(columnIndex);
-               Long timestamp = 1321403384000l;
+               cursor.moveToPosition(i);                
+               imageID = cursor.getInt(columnIndex);
+               Calendar c = Calendar.getInstance(); 
+               int timestamp = c.get(Calendar.SECOND);
                Long date = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
                uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imageID);
                //MediaStore.Images.Media.query(getContentResolver(), uri, projection).;
-               if (date > timestamp)
+               if (date > ds.getTimestamp())
                 	{
-                		
-                		try {
-                			bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-                			if (bitmap != null) {
-                				newBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-                				bitmap.recycle();
-                				if (newBitmap != null) {
-                					publishProgress(new Photo(newBitmap));
-                				}
-                			}
-                } catch (IOException e) {
-                    //Error fetching image, try to recover
-                }
+            	   	try {
+							Uploader up = f.getUploader();
+							ByteArrayOutputStream stream = new ByteArrayOutputStream();
+							InputStream ins = getContentResolver().openInputStream(uri);
+							UploadMetaData meta = new UploadMetaData();
+						    meta.setTitle("title");
+						    meta.setDescription("description");
+						    //Collection<String> tags;
+						    meta.setPublicFlag(true);
+						    meta.setHidden(false);
+							up.upload("name", ins, meta);
+		                } catch (IOException e) {
+		                    //Error fetching image, try to recover
+		                }catch (FlickrException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SAXException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
                 	}
             }
             cursor.close();
             
             
-            /*load flickr images*/
-    		OAuthToken token = oauth.getToken();
-			Flickr f = FlickrHelper.getInstance().getFlickrAuthed(token.getOauthToken(),token.getOauthTokenSecret());
+            /*load flickr images*/			
 			logger.debug("1");
 			Set<String> extras = new HashSet<String>();
 			extras.add("url_sq"); //$NON-NLS-1$
