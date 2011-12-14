@@ -288,7 +288,7 @@ OnItemClickListener {
 			extras.add("views"); //$NON-NLS-1$
 			User user = oauth.getUser();
 			try {
-				PhotoList photoList = f.getPeopleInterface().getPhotos(user.getId(), extras, 20, 1);
+				PhotoList photoList = f.getPeopleInterface().getPhotos(user.getId(), extras, 0, 1);
 				for(com.gmail.yuyang226.flickr.photos.Photo photo : photoList){					
 					bitmap = BitmapFactory.decodeStream(f.getPhotosInterface().getImageAsStream(photo, Size.THUMB));
 					if (bitmap != null) {
@@ -656,7 +656,7 @@ OnItemClickListener {
 				extras.add("views"); //$NON-NLS-1$
 				User user = arg0[0].getUser();
 				try {
-					return f.getPeopleInterface().getPhotos(user.getId(), extras, 20, 1);
+					return f.getPeopleInterface().getPhotos(user.getId(), extras, 0, 1);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
