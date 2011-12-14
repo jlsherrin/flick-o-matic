@@ -52,6 +52,7 @@ import com.gmail.yuyang226.flickr.util.Base64;
 import com.gmail.yuyang226.flickr.uploader.Uploader;
 import com.gmail.yuyang226.flickr.uploader.UploadMetaData;
 
+
 import edu.ualr.swe.tasks.GetOAuthTokenTask;
 import edu.ualr.swe.tasks.LoadPhotostreamTask;
 import edu.ualr.swe.tasks.LoadUserTask;
@@ -77,6 +78,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
@@ -118,6 +120,7 @@ OnItemClickListener {
 	
 	private ListView listView;
 	private ImageView userIcon;
+	private ImageButton refreshButton;
 	
 	private static final Logger logger = LoggerFactory.getLogger(LoadImagesFromSDCardActivity.class);
     
@@ -139,6 +142,15 @@ OnItemClickListener {
          oldDate = ds.getTimestamp();
 		//TextView dbg = (TextView)findViewById(R.id.textView1);
 		display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+		
+		this.refreshButton = (ImageButton) this.findViewById(R.id.btnRefreshUserProfile);
+		
+		this.refreshButton.setOnClickListener(new OnClickListener() {
+			//@Override
+			public void onClick(View v) {
+				load(getOAuthToken());
+			}
+		});
 	        
 	    setupViews();
         OAuth oauth = getOAuthToken();
