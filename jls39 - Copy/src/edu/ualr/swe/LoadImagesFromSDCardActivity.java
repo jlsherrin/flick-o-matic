@@ -105,7 +105,10 @@ OnItemClickListener {
     String apiKey = "8d7dec18e1e325fa0df671b184ff91db";
     String apiSecret = "1cf670e8f539eda9";
     String sha1Key = "";
-	
+    Long date = 0l;
+    DataStorage ds;
+    Long oldDate;
+    Editor prefEditor;
     public static final String CALLBACK_SCHEME = "flick-o-matic-oauth";
 	public static final String PREFS_NAME = "prefFile"; 
 	public static final String KEY_OAUTH_TOKEN = "flick-o-matic-oauthToken"; 
@@ -130,8 +133,11 @@ OnItemClickListener {
         // Request progress bar
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.main);
-
-		TextView dbg = (TextView)findViewById(R.id.textView1);
+        String PREF_FILE_NAME = "prefFile";
+        ds = new DataStorage(getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE));
+        prefEditor = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE).edit();
+         oldDate = ds.getTimestamp();
+		//TextView dbg = (TextView)findViewById(R.id.textView1);
 		display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 	        
 	    setupViews();
@@ -156,6 +162,7 @@ OnItemClickListener {
      * Setup the grid view.
      */
     private void setupViews() {
+    	ImageView img = (ImageView) findViewById(R.id.imageView1);
         sdcardImages = (GridView) findViewById(R.id.sdcard);
         sdcardImages.setNumColumns(display.getWidth()/95);
         sdcardImages.setClipToPadding(false);
@@ -207,7 +214,7 @@ OnItemClickListener {
 
         for (int i = 0; i < count; i++) {
             final ImageView v = (ImageView) grid.getChildAt(i);
-            //list[i] = new Photo(((BitmapDrawable) v.getDrawable()).getBitmap());
+            list[i] = new Photo(((BitmapDrawable) v.getDrawable()).getBitmap());
         }
 
         return list;
@@ -236,7 +243,7 @@ OnItemClickListener {
             Uri uri = null;            
     		OAuthToken token = oauth.getToken();
             Flickr f = FlickrHelper.getInstance().getFlickrAuthed(token.getOauthToken(),token.getOauthTokenSecret());
-            DataStorage ds = new DataStorage();
+             
             //MediaStore.Images.Media.
          
             // Set up an array of the Image ID column we want
@@ -258,39 +265,7 @@ OnItemClickListener {
             }
             int imageID = 0;
             
-            for (int i = 0; i < size; i++) {
-               cursor.moveToPosition(i);                
-               imageID = cursor.getInt(columnIndex);
-               Calendar c = Calendar.getInstance(); 
-               int timestamp = c.get(Calendar.SECOND);
-               Long date = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
-               uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imageID);
-               //MediaStore.Images.Media.query(getContentResolver(), uri, projection).;
-               if (date > ds.getTimestamp())
-                	{
-            	   	try {
-							Uploader up = f.getUploader();
-							ByteArrayOutputStream stream = new ByteArrayOutputStream();
-							InputStream ins = getContentResolver().openInputStream(uri);
-							UploadMetaData meta = new UploadMetaData();
-						    meta.setTitle("title");
-						    meta.setDescription("description");
-						    //Collection<String> tags;
-						    meta.setPublicFlag(true);
-						    meta.setHidden(false);
-							up.upload("name", ins, meta);
-		                } catch (IOException e) {
-		                    //Error fetching image, try to recover
-		                }catch (FlickrException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SAXException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-                	}
-            }
-            cursor.close();
+           
             
             
             /*load flickr images*/			
@@ -317,6 +292,46 @@ OnItemClickListener {
 				e.printStackTrace();
 			}
             
+			
+			 for (int i = 0; i < size; i++) {
+	               cursor.moveToPosition(i);                
+	               imageID = cursor.getInt(columnIndex);
+	               Calendar c = Calendar.getInstance(); 
+	               int timestamp = c.get(Calendar.SECOND);
+	               date = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
+	               uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imageID);
+	              // MediaStore.Images.Media.query(getContentResolver(), uri, projection).;
+	               if (date > oldDate)
+	                	{
+	            	   	try {
+								Uploader up = f.getUploader();
+								ByteArrayOutputStream stream = new ByteArrayOutputStream();
+								InputStream ins = getContentResolver().openInputStream(uri);
+								UploadMetaData meta = new UploadMetaData();
+							    meta.setTitle("title");
+							    meta.setDescription("description");
+							    //Collection<String> tags;
+							    meta.setPublicFlag(true);
+							    meta.setHidden(false);
+								up.upload("name", ins, meta);
+								//update timestamp
+								prefEditor.putLong("timestamp",date);
+								prefEditor.commit();
+			                } catch (IOException e) {
+			                    //Error fetching image, try to recover
+			                }catch (FlickrException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (SAXException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+	                	}
+	            }
+	            cursor.close();
+			
+			
+			
             return null;
         }
         /**

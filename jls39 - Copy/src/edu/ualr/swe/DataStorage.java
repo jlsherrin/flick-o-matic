@@ -4,13 +4,12 @@ package edu.ualr.swe;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-public class DataStorage extends Activity{
-	private String PREF_FILE_NAME = "prefFile";
+public class DataStorage extends Activity{ 
 	private SharedPreferences preferences;
 	private SharedPreferences.Editor prefEditor;
 	
-	public DataStorage() {
-		preferences = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
+	public DataStorage(SharedPreferences prefs) {
+		preferences = prefs;
 		prefEditor = preferences.edit();
 		if (preferences.contains("timestamp")){
 			
@@ -50,6 +49,8 @@ public class DataStorage extends Activity{
 	public long getTimestamp(){
 		return preferences.getLong("timestamp", System.currentTimeMillis()/1000);
 	}
+	
+
 	
 	//for settings section
 	public boolean getUpload(){
