@@ -1,0 +1,1 @@
+Android app for automatic picture uploading to Flickr
